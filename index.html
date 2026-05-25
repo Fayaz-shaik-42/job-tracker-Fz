@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fayaz · Job Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #21262d; --border2: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --dim: #6b7280;
+    --blue: #3b82f6; --cyan: #06b6d4; --green: #10b981;
+    --yellow: #f59e0b; --purple: #a855f7; --red: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border-bottom: 1px solid var(--border); padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .logo-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+  .logo-sub { color: var(--dim); font-size: 11px; margin-top: 2px; }
+  .save-dot { color: var(--blue); font-size: 11px; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }
+  .save-dot.show { opacity: 1; }
+
+  .btn-add {
+    background: linear-gradient(135deg, var(--blue), var(--cyan)); border: none;
+    border-radius: 10px; color: #fff; padding: 10px 20px; font-weight: 700;
+    font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.02em; transition: opacity 0.2s; white-space: nowrap;
+  }
+  .btn-add:hover { opacity: 0.85; }
+
+  /* Main */
+  .main { padding: 24px 28px; max-width: 1200px; margin: 0 auto; }
+
+  /* Stats */
+  .stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--surface); border-radius: 12px; padding: 16px 20px;
+    flex: 1; min-width: 110px; border: 1px solid transparent;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .stat-label { font-size: 11px; margin-top: 2px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+
+  /* Form */
+  .form-panel {
+    background: var(--surface); border: 1px solid var(--border2); border-radius: 16px;
+    padding: 22px; margin-bottom: 22px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideDown 0.2s ease;
+  }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .form-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--blue); margin-bottom: 16px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .form-group label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 9px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--blue); }
+  .form-group select { cursor: pointer; }
+  .form-group textarea { resize: vertical; }
+
+  .skills-row { margin-top: 14px; }
+  .skills-row label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .skill-tag {
+    background: var(--bg); border: 1px solid var(--border2); color: var(--muted);
+    border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; transition: all 0.15s;
+  }
+  .skill-tag.active { background: #1e3a5f; border-color: var(--blue); color: var(--blue); }
+
+  .btn-save {
+    margin-top: 16px; background: linear-gradient(135deg, var(--blue), var(--cyan));
+    border: none; border-radius: 10px; color: #fff; padding: 10px 28px;
+    font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.85; }
+
+  /* Filters */
+  .filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filters input, .filters select {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 8px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .filters input { width: 220px; }
+  .filters input:focus, .filters select:focus { border-color: var(--blue); }
+  .filters select { cursor: pointer; }
+  .count { color: var(--dim); font-size: 12px; margin-left: auto; }
+
+  /* Job Cards */
+  .job-list { display: flex; flex-direction: column; gap: 10px; }
+  .job-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px;
+    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .job-card:hover { border-color: var(--border2); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+  .job-main { flex: 1 1 180px; min-width: 140px; }
+  .job-company { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+  .job-role { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .job-link { color: var(--blue); font-size: 11px; text-decoration: none; display: inline-block; margin-top: 4px; }
+  .job-link:hover { text-decoration: underline; }
+
+  .job-meta { flex: 0 0 auto; text-align: center; min-width: 90px; }
+  .job-platform { font-size: 12px; font-weight: 600; }
+  .job-date { color: var(--dim); font-size: 11px; margin-top: 2px; }
+
+  .job-skills { flex: 1 1 140px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .job-skill-tag {
+    background: var(--bg); border: 1px solid var(--border2); color: var(--muted);
+    border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600;
+  }
+
+  .job-salary { color: var(--green); font-size: 12px; font-weight: 700; flex: 0 0 auto; }
+
+  .job-status { flex: 0 0 auto; }
+  .status-badge {
+    border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;
+    display: inline-block; border: 1px solid transparent;
+  }
+  .job-tz { color: var(--dim); font-size: 10px; margin-top: 4px; text-align: center; }
+
+  .job-actions { display: flex; gap: 6px; flex: 0 0 auto; align-items: center; }
+  .btn-icon {
+    background: var(--border); border: 1px solid var(--border2); border-radius: 7px;
+    color: var(--muted); padding: 5px 10px; font-size: 12px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-icon:hover { background: var(--border2); }
+  .btn-icon.del { color: var(--red); }
+
+  .job-notes {
+    width: 100%; background: var(--bg); border-radius: 8px; padding: 8px 12px;
+    color: var(--dim); font-size: 12px; border-left: 3px solid var(--border2); margin-top: 2px;
+    font-style: italic;
+  }
+
+  /* Empty state */
+  .empty {
+    background: var(--surface); border: 1px dashed var(--border2); border-radius: 16px;
+    padding: 60px; text-align: center; color: var(--dim);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--muted); }
+  .empty-sub { font-size: 13px; margin-top: 6px; }
+
+  /* Tip */
+  .tip {
+    margin-top: 28px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px; color: var(--dim); font-size: 12px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .tip strong { color: var(--muted); }
+
+  /* Modal overlay for mobile */
+  @media (max-width: 600px) {
+    .main { padding: 16px; }
+    .header { padding: 16px; }
+    .filters input { width: 100%; }
+    .count { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-title">Fayaz's Job Tracker</div>
+      <div class="logo-sub">Azure Data Engineer · Infosys · Notice Period Active <span class="save-dot" id="saveDot">● saving…</span></div>
+    </div>
+  </div>
+  <button class="btn-add" id="toggleBtn" onclick="toggleForm()">+ Add Application</button>
+</div>
+
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats" id="stats"></div>
+
+  <!-- Form -->
+  <div class="form-panel" id="formPanel" style="display:none">
+    <div class="form-title" id="formTitle">➕ New Application</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Company *</label><input id="f-company" placeholder="e.g. Airbnb"/></div>
+      <div class="form-group"><label>Role *</label><input id="f-role" placeholder="e.g. Data Engineer"/></div>
+      <div class="form-group"><label>Job Link</label><input id="f-link" type="url" placeholder="Paste JD URL"/></div>
+      <div class="form-group"><label>Salary</label><input id="f-salary" placeholder="e.g. 25 LPA / $90k"/></div>
+      <div class="form-group"><label>Timezone</label><input id="f-timezone" placeholder="e.g. IST / EST / GMT"/></div>
+      <div class="form-group"><label>Applied Date</label><input id="f-date" type="date"/></div>
+      <div class="form-group">
+        <label>Platform</label>
+        <select id="f-platform">
+          <option value="">Select platform</option>
+          <option>Wellfound</option><option>Himalayas</option><option>Remote OK</option>
+          <option>We Work Remotely</option><option>Remotive</option><option>LinkedIn</option>
+          <option>Dice</option><option>DataJobs.io</option><option>Working Nomads</option>
+          <option>Dynamite Jobs</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option>Applied</option><option>HR Reached</option><option>Interview</option>
+          <option>Offer</option><option>Rejected</option><option>No Response</option>
+        </select>
+      </div>
+    </div>
+    <div class="skills-row">
+      <label>Skills Matched in JD</label>
+      <div class="skill-tags" id="skillTagsForm"></div>
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <label>Notes</label>
+      <textarea id="f-notes" rows="2" placeholder="Recruiter name, follow-up date, interview round…"></textarea>
+    </div>
+    <button class="btn-save" onclick="saveJob()">Save Application</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="🔍 Search company or role…" oninput="render()"/>
+    <select id="filterStatus" onchange="render()">
+      <option value="">All Statuses</option>
+      <option>Applied</option><option>HR Reached</option><option>Interview</option>
+      <option>Offer</option><option>Rejected</option><option>No Response</option>
+    </select>
+    <select id="filterPlatform" onchange="render()">
+      <option value="">All Platforms</option>
+      <option>Wellfound</option><option>Himalayas</option><option>Remote OK</option>
+      <option>We Work Remotely</option><option>Remotive</option><option>LinkedIn</option>
+      <option>Dice</option><option>DataJobs.io</option><option>Working Nomads</option>
+      <option>Dynamite Jobs</option><option>Other</option>
+    </select>
+    <div class="count" id="countLabel"></div>
+  </div>
+
+  <!-- Job List -->
+  <div class="job-list" id="jobList"></div>
+
+  <!-- Tip -->
+  <div class="tip">
+    <span style="font-size:16px">💡</span>
+    <span><strong>Pro tip:</strong> Target Wellfound, Himalayas & Remote OK first — best fit for Azure Data Engineers. Follow up on LinkedIn 5 days after applying. Your data is saved in this browser automatically.</span>
+  </div>
+</div>
+
+<script>
+const SKILLS = ["ADF","Databricks","ADLS","Synapse","PySpark","SQL","Python","Azure","Kafka","dbt"];
+const STATUS_STYLES = {
+  "Applied":     { color:"#3b82f6", bg:"#1e3a5f" },
+  "HR Reached":  { color:"#f59e0b", bg:"#3d2e0a" },
+  "Interview":   { color:"#a855f7", bg:"#2d1a4a" },
+  "Offer":       { color:"#10b981", bg:"#0a3325" },
+  "Rejected":    { color:"#ef4444", bg:"#3d1010" },
+  "No Response": { color:"#6b7280", bg:"#1f2937" },
+};
+
+let jobs = JSON.parse(localStorage.getItem("fayaz-jobs") || "[]");
+let editId = null;
+let selectedSkills = [];
+let formOpen = false;
+
+// Build skill tags in form
+function buildSkillTags() {
+  const c = document.getElementById("skillTagsForm");
+  c.innerHTML = SKILLS.map(s =>
+    `<button type="button" class="skill-tag${selectedSkills.includes(s)?' active':''}" onclick="toggleSkill('${s}')">${s}</button>`
+  ).join("");
+}
+
+function toggleSkill(skill) {
+  if (selectedSkills.includes(skill)) selectedSkills = selectedSkills.filter(s => s !== skill);
+  else selectedSkills.push(skill);
+  buildSkillTags();
+}
+
+function toggleForm(forceClose) {
+  formOpen = forceClose === true ? false : !formOpen;
+  document.getElementById("formPanel").style.display = formOpen ? "block" : "none";
+  document.getElementById("toggleBtn").textContent = formOpen && editId === null ? "✕ Cancel" : "+ Add Application";
+  if (formOpen) buildSkillTags();
+}
+
+function clearForm() {
+  ["f-company","f-role","f-link","f-salary","f-timezone","f-notes"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("f-platform").value = "";
+  document.getElementById("f-status").value = "Applied";
+  document.getElementById("f-date").value = "";
+  selectedSkills = [];
+  editId = null;
+  buildSkillTags();
+}
+
+function saveJob() {
+  const company = document.getElementById("f-company").value.trim();
+  const role = document.getElementById("f-role").value.trim();
+  if (!company || !role) { alert("Company and Role are required!"); return; }
+
+  const job = {
+    id: editId || Date.now(),
+    company, role,
+    link: document.getElementById("f-link").value.trim(),
+    salary: document.getElementById("f-salary").value.trim(),
+    timezone: document.getElementById("f-timezone").value.trim(),
+    notes: document.getElementById("f-notes").value.trim(),
+    platform: document.getElementById("f-platform").value,
+    status: document.getElementById("f-status").value,
+    date: document.getElementById("f-date").value,
+    skills: [...selectedSkills],
+  };
+
+  if (editId) {
+    jobs = jobs.map(j => j.id === editId ? job : j);
+  } else {
+    jobs.unshift(job);
+  }
+
+  save();
+  clearForm();
+  toggleForm(true);
+  document.getElementById("formTitle").textContent = "➕ New Application";
+  render();
+}
+
+function editJob(id) {
+  const j = jobs.find(j => j.id === id);
+  if (!j) return;
+  editId = id;
+  selectedSkills = [...(j.skills || [])];
+  document.getElementById("f-company").value = j.company;
+  document.getElementById("f-role").value = j.role;
+  document.getElementById("f-link").value = j.link || "";
+  document.getElementById("f-salary").value = j.salary || "";
+  document.getElementById("f-timezone").value = j.timezone || "";
+  document.getElementById("f-notes").value = j.notes || "";
+  document.getElementById("f-platform").value = j.platform || "";
+  document.getElementById("f-status").value = j.status;
+  document.getElementById("f-date").value = j.date || "";
+  document.getElementById("formTitle").textContent = "✏️ Edit Application";
+  formOpen = false;
+  toggleForm();
+  buildSkillTags();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function deleteJob(id) {
+  if (!confirm("Remove this application?")) return;
+  jobs = jobs.filter(j => j.id !== id);
+  save();
+  render();
+}
+
+function save() {
+  localStorage.setItem("fayaz-jobs", JSON.stringify(jobs));
+  const dot = document.getElementById("saveDot");
+  dot.classList.add("show");
+  setTimeout(() => dot.classList.remove("show"), 1200);
+}
+
+function renderStats() {
+  const total = jobs.length;
+  const interviews = jobs.filter(j => j.status === "Interview").length;
+  const offers = jobs.filter(j => j.status === "Offer").length;
+  const rate = total ? Math.round(jobs.filter(j => !["No Response","Applied"].includes(j.status)).length / total * 100) : 0;
+
+  const cards = [
+    { label:"Total Applied", val: total, color:"#3b82f6", border:"#1e3a5f" },
+    { label:"Interviews", val: interviews, color:"#a855f7", border:"#2d1a4a" },
+    { label:"Offers", val: offers, color:"#10b981", border:"#0a3325" },
+    { label:"Response Rate", val: rate+"%", color:"#f59e0b", border:"#3d2e0a" },
+  ];
+  document.getElementById("stats").innerHTML = cards.map(c =>
+    `<div class="stat-card" style="border-color:${c.border};box-shadow:0 0 20px ${c.color}10">
+      <div class="stat-val" style="color:${c.color}">${c.val}</div>
+      <div class="stat-label">${c.label}</div>
+    </div>`
+  ).join("");
+}
+
+function render() {
+  renderStats();
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const fStatus = document.getElementById("filterStatus").value;
+  const fPlatform = document.getElementById("filterPlatform").value;
+
+  const filtered = jobs.filter(j => {
+    const ms = !fStatus || j.status === fStatus;
+    const mp = !fPlatform || j.platform === fPlatform;
+    const mq = !search || j.company.toLowerCase().includes(search) || j.role.toLowerCase().includes(search);
+    return ms && mp && mq;
+  });
+
+  document.getElementById("countLabel").textContent = `${filtered.length} of ${jobs.length} applications`;
+
+  if (filtered.length === 0) {
+    document.getElementById("jobList").innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">${jobs.length === 0 ? "Start tracking your applications" : "No matches found"}</div>
+        <div class="empty-sub">${jobs.length === 0 ? "Click '+ Add Application' to log your first one" : "Try adjusting your filters"}</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById("jobList").innerHTML = filtered.map(j => {
+    const ss = STATUS_STYLES[j.status] || STATUS_STYLES["Applied"];
+    const skills = (j.skills||[]).map(s => `<span class="job-skill-tag">${s}</span>`).join("");
+    const notes = j.notes ? `<div class="job-notes">📝 ${j.notes}</div>` : "";
+    const link = j.link ? `<a class="job-link" href="${j.link}" target="_blank" rel="noreferrer">🔗 View JD</a>` : "";
+    const salary = j.salary ? `<div class="job-salary">💰 ${j.salary}</div>` : "";
+    const tz = j.timezone ? `<div class="job-tz">🌐 ${j.timezone}</div>` : "";
+    const skillsBlock = j.skills?.length ? `<div class="job-skills">${skills}</div>` : "";
+
+    return `<div class="job-card">
+      <div class="job-main">
+        <div class="job-company">${j.company}</div>
+        <div class="job-role">${j.role}</div>
+        ${link}
+      </div>
+      <div class="job-meta">
+        <div class="job-platform">${j.platform || "—"}</div>
+        <div class="job-date">${j.date || "No date"}</div>
+      </div>
+      ${skillsBlock}
+      ${salary}
+      <div class="job-status">
+        <span class="status-badge" style="background:${ss.bg};color:${ss.color};border-color:${ss.color}40">${j.status}</span>
+        ${tz}
+      </div>
+      <div class="job-actions">
+        <button class="btn-icon" onclick="editJob(${j.id})" title="Edit">✏️</button>
+        <button class="btn-icon del" onclick="deleteJob(${j.id})" title="Delete">🗑</button>
+      </div>
+      ${notes}
+    </div>`;
+  }).join("");
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
