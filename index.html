@@ -6,76 +6,103 @@
 <title>Fayaz · Job Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg:#0d1117; --surface:#161b22; --surface2:#1c2330;
-  --border:#21262d; --border2:#30363d;
-  --text:#e6edf3; --muted:#8b949e; --dim:#6b7280;
-  --blue:#3b82f6; --cyan:#06b6d4; --green:#10b981;
-  --yellow:#f59e0b; --purple:#a855f7; --red:#ef4444;
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2330;
+  --border:#21262d;--border2:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--dim:#6b7280;
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;
+  --yellow:#f59e0b;--purple:#a855f7;--red:#ef4444;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;}
 
 /* HEADER */
 .header{background:linear-gradient(135deg,#0d1117,#161b22);border-bottom:1px solid var(--border);
-  padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
   position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);}
 .logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--cyan));
   display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
 .logo-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.02em;}
 .logo-sub{color:var(--dim);font-size:11px;margin-top:1px;}
-.save-dot{color:var(--blue);font-size:11px;margin-left:8px;opacity:0;transition:opacity .3s;}
-.save-dot.show{opacity:1;}
-.header-actions{display:flex;gap:8px;align-items:center;}
-.btn{border:none;border-radius:9px;padding:9px 18px;font-weight:700;font-size:12px;
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn{border:none;border-radius:9px;padding:9px 16px;font-weight:700;font-size:12px;
   cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.02em;transition:opacity .2s;}
 .btn:hover{opacity:.82;}
 .btn-primary{background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;}
 .btn-ghost{background:var(--border);color:var(--muted);}
+.btn-pdf{background:#1a1a2e;border:1px solid #e84393;color:#e84393;}
+
+/* SYNC STATUS */
+.sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);padding:6px 24px;
+  background:var(--surface);border-bottom:1px solid var(--border);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background .3s;}
+.sync-dot.syncing{background:var(--yellow);animation:pulse .8s infinite;}
+.sync-dot.ok{background:var(--green);}
+.sync-dot.err{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* API USAGE TRACKER */
+.api-bar{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--dim);
+  padding:5px 24px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.api-bar-label{white-space:nowrap;}
+.api-progress-wrap{flex:1;max-width:200px;height:6px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.api-progress-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s;}
+.api-count{white-space:nowrap;font-size:10px;}
 
 /* STATS */
-.stats{display:flex;gap:10px;padding:18px 24px;flex-wrap:wrap;}
+.stats{display:flex;gap:10px;padding:16px 24px;flex-wrap:wrap;}
 .stat{background:var(--surface);border-radius:12px;padding:14px 18px;flex:1;min-width:100px;
   border:1px solid transparent;transition:transform .2s;}
 .stat:hover{transform:translateY(-2px);}
 .stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;}
 .stat-lbl{font-size:10px;margin-top:2px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);}
 
-/* SEARCH & FILTERS */
+/* TOOLBAR */
 .toolbar{display:flex;gap:8px;padding:0 24px 14px;flex-wrap:wrap;align-items:center;}
 .toolbar input,.toolbar select{background:var(--surface);border:1px solid var(--border);border-radius:8px;
   color:var(--text);padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;
   outline:none;transition:border-color .2s;}
 .toolbar input:focus,.toolbar select:focus{border-color:var(--blue);}
-.toolbar input{width:230px;}
+.toolbar input{width:210px;}
 .toolbar select{cursor:pointer;}
 .toolbar .count{color:var(--dim);font-size:12px;margin-left:auto;}
 
 /* TABLE */
 .table-wrap{padding:0 24px;overflow-x:auto;}
-table{width:100%;border-collapse:collapse;min-width:900px;}
+table{width:100%;border-collapse:collapse;min-width:860px;}
 thead tr{background:var(--surface2);border-bottom:2px solid var(--border2);}
-th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+th{padding:10px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;
   color:var(--muted);font-weight:700;white-space:nowrap;cursor:pointer;user-select:none;}
 th:hover{color:var(--blue);}
-th .sort-arrow{margin-left:4px;opacity:.4;}
-th.active .sort-arrow{opacity:1;color:var(--blue);}
+th .sa{margin-left:3px;opacity:.35;}
 tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
 tbody tr:hover{background:var(--surface);}
-td{padding:11px 12px;font-size:13px;vertical-align:middle;}
+td{padding:10px 10px;font-size:13px;vertical-align:top;}
 .td-company{font-weight:700;font-family:'Syne',sans-serif;font-size:13px;}
 .td-role{color:var(--muted);font-size:12px;margin-top:2px;}
-.td-link{color:var(--blue);font-size:11px;text-decoration:none;}
+.td-link{color:var(--blue);font-size:11px;text-decoration:none;display:inline-block;margin-top:3px;}
 .td-link:hover{text-decoration:underline;}
-.td-skills{display:flex;flex-wrap:wrap;gap:3px;}
+/* Dates */
+.date-block{display:flex;flex-direction:column;gap:3px;font-size:11px;}
+.date-line{display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.date-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:1px 5px;border-radius:3px;flex-shrink:0;}
+.dl-applied{background:#1e3a5f;color:#3b82f6;}
+.dl-interview{background:#2d1a4a;color:#a855f7;}
+.dl-joining{background:#0a3325;color:#10b981;}
+/* Skills compact */
+.td-skills{display:flex;flex-wrap:wrap;gap:3px;max-width:120px;}
 .skill-chip{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
-  border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;white-space:nowrap;}
+  border-radius:4px;padding:2px 5px;font-size:9px;font-weight:700;white-space:nowrap;}
+/* Notes */
+.td-notes{font-size:11px;color:var(--dim);white-space:pre-line;line-height:1.5;max-width:160px;}
+/* Contacts */
+.contacts-mini{display:flex;flex-direction:column;gap:3px;}
+.contact-mini-item{font-size:11px;color:var(--muted);}
 .status-badge{border-radius:5px;padding:3px 9px;font-size:10px;font-weight:800;
   letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;display:inline-block;}
-.contacts-mini{display:flex;flex-direction:column;gap:2px;}
-.contact-mini-item{font-size:11px;color:var(--muted);white-space:nowrap;}
-.actions-td{display:flex;gap:5px;}
+.actions-td{display:flex;gap:5px;flex-wrap:wrap;}
 .btn-icon{background:var(--border);border:1px solid var(--border2);border-radius:6px;
   color:var(--muted);padding:5px 9px;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .btn-icon:hover{background:var(--border2);}
@@ -87,22 +114,22 @@ td{padding:11px 12px;font-size:13px;vertical-align:middle;}
 .empty-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--muted);}
 .empty-sub{font-size:12px;margin-top:5px;}
 
-/* MODAL OVERLAY */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;
-  align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;
+  align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
 .overlay.open{display:flex;}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:18px;
-  padding:24px;width:100%;max-width:720px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,.6);
+  padding:24px;width:100%;max-width:700px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,.6);
   animation:popIn .2s ease;}
 @keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
 .modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--blue);}
 .btn-close{background:var(--border);border:none;border-radius:7px;color:var(--muted);
   padding:5px 10px;cursor:pointer;font-size:14px;transition:all .15s;}
 .btn-close:hover{color:var(--red);}
 
-/* FORM GRID */
-.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
 .fgroup{display:flex;flex-direction:column;gap:5px;}
 .fgroup label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;}
 .fgroup input,.fgroup select,.fgroup textarea{
@@ -112,24 +139,18 @@ td{padding:11px 12px;font-size:13px;vertical-align:middle;}
 .fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{border-color:var(--blue);}
 .fgroup select{cursor:pointer;}
 .fgroup textarea{resize:vertical;}
-
-/* Date with calendar icon */
 .date-wrap{position:relative;display:flex;align-items:center;}
-.date-wrap input{padding-right:36px;}
+.date-wrap input{padding-right:36px;width:100%;}
 .date-cal-btn{position:absolute;right:8px;background:none;border:none;cursor:pointer;
-  font-size:15px;color:var(--muted);transition:color .15s;padding:0;}
+  font-size:14px;color:var(--muted);transition:color .15s;padding:0;z-index:1;}
 .date-cal-btn:hover{color:var(--blue);}
 input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolute;right:0;width:100%;cursor:pointer;}
-
-/* Custom option adder */
 .custom-option-wrap{display:flex;gap:6px;margin-top:4px;}
-.custom-option-wrap input{flex:1;}
+.custom-option-wrap input{flex:1;font-size:11px;padding:5px 8px;}
 .btn-add-opt{background:var(--border);border:1px solid var(--border2);border-radius:7px;
-  color:var(--muted);padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap;
+  color:var(--muted);padding:6px 10px;font-size:11px;cursor:pointer;white-space:nowrap;
   font-family:'DM Sans',sans-serif;transition:all .15s;}
 .btn-add-opt:hover{color:var(--blue);border-color:var(--blue);}
-
-/* Skills */
 .section-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em;
   font-weight:700;margin-top:16px;margin-bottom:8px;}
 .skill-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
@@ -145,13 +166,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
   color:var(--muted);padding:7px 12px;font-size:12px;cursor:pointer;
   font-family:'DM Sans',sans-serif;transition:all .15s;}
 .skill-custom-row button:hover{color:var(--blue);border-color:var(--blue);}
-
-/* Contacts */
-.contacts-section{margin-top:16px;}
 .contact-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;background:var(--bg);
-  border:1px solid var(--border);border-radius:9px;padding:10px 12px;}
+  border:1px solid var(--border);border-radius:9px;padding:9px 12px;}
 .contact-row input{background:transparent;border:none;color:var(--text);font-size:12px;
-  font-family:'DM Sans',sans-serif;outline:none;flex:1;min-width:80px;}
+  font-family:'DM Sans',sans-serif;outline:none;flex:1;min-width:60px;}
 .contact-row input::placeholder{color:var(--dim);}
 .contact-row .sep{color:var(--border2);font-size:10px;}
 .btn-rm-contact{background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;
@@ -161,23 +179,26 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
   color:var(--muted);padding:9px 14px;font-size:12px;cursor:pointer;width:100%;
   font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center;}
 .btn-add-contact:hover{color:var(--blue);border-color:var(--blue);}
-
-/* Divider */
-.form-divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.form-divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
 
 /* TIP */
-.tip{margin:16px 24px 24px;background:var(--surface);border:1px solid var(--border);
+.tip{margin:14px 24px 24px;background:var(--surface);border:1px solid var(--border);
   border-radius:12px;padding:12px 16px;color:var(--dim);font-size:12px;
   display:flex;gap:8px;align-items:flex-start;}
 .tip strong{color:var(--muted);}
 
-/* RESPONSIVE */
-@media(max-width:640px){
-  .header{padding:12px 16px;}
-  .stats{padding:14px 16px;}
-  .toolbar{padding:0 16px 12px;}
-  .table-wrap{padding:0 16px;}
-  .tip{margin:12px 16px 20px;}
+/* PRINT / PDF */
+@media print{
+  .header,.sync-bar,.api-bar,.toolbar,.tip,.btn,.btn-icon,.actions-td,
+  .overlay,.modal,.btn-add-contact,.btn-pdf{display:none!important;}
+  body{background:#fff;color:#000;}
+  table{font-size:11px;}
+  th,td{border:1px solid #ccc;padding:6px 8px;}
+  .td-company{color:#000;}
+  .td-role{color:#555;}
+  .status-badge{border:1px solid #999!important;color:#000!important;background:#f0f0f0!important;}
+  .skill-chip{background:#eee!important;color:#333!important;border-color:#ccc!important;}
+  .date-label{background:#ddd!important;color:#333!important;}
 }
 </style>
 </head>
@@ -189,12 +210,28 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
     <div class="logo-icon">⚡</div>
     <div>
       <div class="logo-title">Fayaz's Job Tracker</div>
-      <div class="logo-sub">Azure Data Engineer · Notice Period Active <span class="save-dot" id="saveDot">● saving…</span></div>
+      <div class="logo-sub">Azure Data Engineer · Notice Period Active</div>
     </div>
   </div>
   <div class="header-actions">
-    <button class="btn btn-primary" onclick="openModal()">+ Add Application</button>
+    <button class="btn btn-pdf" onclick="downloadPDF()">⬇ PDF</button>
+    <button class="btn btn-ghost" onclick="openModal()">+ Add Application</button>
   </div>
+</div>
+
+<!-- SYNC STATUS BAR -->
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncMsg">Connecting to cloud…</span>
+</div>
+
+<!-- API USAGE BAR -->
+<div class="api-bar">
+  <span class="api-bar-label">☁ JSONBin API usage:</span>
+  <div class="api-progress-wrap">
+    <div class="api-progress-fill" id="apiProgressFill" style="width:0%"></div>
+  </div>
+  <span class="api-count" id="apiCount">— / 10,000</span>
 </div>
 
 <!-- STATS -->
@@ -215,18 +252,18 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
 </div>
 
 <!-- TABLE -->
-<div class="table-wrap">
+<div class="table-wrap" id="printArea">
   <table>
     <thead>
       <tr>
-        <th onclick="sortBy('company')">Company / Role <span class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('date')">Date <span class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('platform')">Platform <span class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('company')">Company / Role <span class="sa">↕</span></th>
+        <th onclick="sortBy('dateApplied')">Dates <span class="sa">↕</span></th>
+        <th onclick="sortBy('platform')">Platform <span class="sa">↕</span></th>
         <th>Skills</th>
         <th>Contacts</th>
-        <th onclick="sortBy('salary')">Salary <span class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('status')">Status <span class="sort-arrow">↕</span></th>
-        <th>Actions</th>
+        <th onclick="sortBy('salary')">Salary <span class="sa">↕</span></th>
+        <th onclick="sortBy('status')">Status <span class="sa">↕</span></th>
+        <th>Notes / Actions</th>
       </tr>
     </thead>
     <tbody id="jobTableBody"></tbody>
@@ -242,10 +279,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
 
 <div class="tip">
   <span style="font-size:15px">💡</span>
-  <span><strong>Pro tip:</strong> Target Wellfound, Himalayas & Remote OK — best for Azure Data Engineers. Follow up on LinkedIn 5 days after applying. All data saves automatically in your browser.</span>
+  <span><strong>Pro tip:</strong> Target Wellfound, Himalayas & Remote OK — best for Azure Data Engineers. Data syncs across all devices via cloud. Click ⬇ PDF to download the full dashboard.</span>
 </div>
 
-<!-- ADD / EDIT MODAL -->
+<!-- MODAL -->
 <div class="overlay" id="overlay" onclick="overlayClick(event)">
 <div class="modal" id="modal">
   <div class="modal-header">
@@ -253,7 +290,6 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
     <button class="btn-close" onclick="closeModal()">✕</button>
   </div>
 
-  <!-- Row 1 -->
   <div class="form-grid">
     <div class="fgroup" style="grid-column:span 2">
       <label>Company *</label>
@@ -268,28 +304,29 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
       <input id="f-link" type="url" placeholder="Paste JD URL"/>
     </div>
 
+    <!-- DATES -->
     <div class="fgroup" style="grid-column:span 2">
       <label>Dates</label>
-      <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;flex-direction:column;gap:7px;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--muted);font-size:11px;width:70px;flex-shrink:0;">📨 Applied</span>
-          <div class="date-wrap" style="flex:1;">
+          <span class="date-label dl-applied" style="font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;">📨 Applied</span>
+          <div class="date-wrap" style="flex:1">
             <input type="date" id="f-date-applied"/>
-            <button class="date-cal-btn" title="Set today" onclick="setToday('f-date-applied')">📅</button>
+            <button class="date-cal-btn" onclick="setToday('f-date-applied')" title="Set today">📅</button>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--muted);font-size:11px;width:70px;flex-shrink:0;">🎙 Interview</span>
-          <div class="date-wrap" style="flex:1;">
+          <span class="date-label dl-interview" style="font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;">🎙 Interview</span>
+          <div class="date-wrap" style="flex:1">
             <input type="date" id="f-date-interview"/>
-            <button class="date-cal-btn" title="Set today" onclick="setToday('f-date-interview')">📅</button>
+            <button class="date-cal-btn" onclick="setToday('f-date-interview')" title="Set today">📅</button>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:var(--muted);font-size:11px;width:70px;flex-shrink:0;">🏢 Joining</span>
-          <div class="date-wrap" style="flex:1;">
+          <span class="date-label dl-joining" style="font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;">🏢 Joining</span>
+          <div class="date-wrap" style="flex:1">
             <input type="date" id="f-date-joining"/>
-            <button class="date-cal-btn" title="Set today" onclick="setToday('f-date-joining')">📅</button>
+            <button class="date-cal-btn" onclick="setToday('f-date-joining')" title="Set today">📅</button>
           </div>
         </div>
       </div>
@@ -299,12 +336,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
       <label>Salary (LPA / USD)</label>
       <input id="f-salary" placeholder="e.g. 25 LPA or $90k"/>
     </div>
-
     <div class="fgroup">
       <label>Timezone</label>
       <input id="f-timezone" placeholder="e.g. IST / EST"/>
     </div>
-
     <div class="fgroup">
       <label>Status</label>
       <select id="f-status">
@@ -312,9 +347,8 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
         <option>Offer</option><option>Rejected</option><option>No Response</option>
       </select>
     </div>
-
     <div class="fgroup">
-      <label>Platform</label>
+      <label>Platform <span style="font-weight:400;color:var(--dim)">(optional)</span></label>
       <select id="f-platform">
         <option value="">— Select —</option>
         <option>Wellfound</option><option>Himalayas</option><option>Remote OK</option>
@@ -323,7 +357,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
         <option>Naukri</option><option>Dynamite Jobs</option><option>Other</option>
       </select>
       <div class="custom-option-wrap">
-        <input id="f-platform-custom" placeholder="Add custom platform…" style="font-size:11px;padding:5px 8px;"/>
+        <input id="f-platform-custom" placeholder="Add custom…"/>
         <button class="btn-add-opt" onclick="addCustomOption('f-platform','f-platform-custom')">+ Add</button>
       </div>
     </div>
@@ -332,26 +366,26 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
   <hr class="form-divider"/>
 
   <!-- SKILLS -->
-  <div class="section-label">Skills Matched in JD</div>
+  <div class="section-label">Skills Matched in JD <span style="font-weight:400;color:var(--dim);font-size:10px">(pick any, or add manually)</span></div>
   <div class="skill-tags" id="skillTagsForm"></div>
   <div class="skill-custom-row">
-    <input id="skillCustomInput" placeholder="Add skill manually (e.g. Spark Streaming, dbt, Kafka)…"/>
-    <button onclick="addCustomSkill()">+ Add Skill</button>
+    <input id="skillCustomInput" placeholder="Type skill and add (e.g. Spark Streaming, dbt, Kafka)…"/>
+    <button onclick="addCustomSkill()">+ Add</button>
   </div>
 
   <hr class="form-divider"/>
 
   <!-- CONTACTS -->
   <div class="section-label">HR / Recruiter Contacts</div>
-  <div class="contacts-section" id="contactsSection"></div>
-  <button class="btn-add-contact" onclick="addContactRow()">＋ Add Contact</button>
+  <div id="contactsSection"></div>
+  <button class="btn-add-contact" onclick="addContactRow()">＋ Add Contact (Name + Email / Phone)</button>
 
   <hr class="form-divider"/>
 
   <!-- NOTES -->
   <div class="fgroup">
-    <label>Notes</label>
-    <textarea id="f-notes" rows="2" placeholder="Interview round, follow-up date, referral info…"></textarea>
+    <label>Notes <span style="font-weight:400;color:var(--dim);font-size:10px">(Enter key gives new line)</span></label>
+    <textarea id="f-notes" rows="3" placeholder="· Interview round 1 cleared&#10;· Follow-up on Monday&#10;· Referral via Linkedin"></textarea>
   </div>
 
   <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -362,10 +396,15 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
 </div>
 
 <script>
-// ── DATA & DEFAULTS ──────────────────────────────────────────────────
+// ── CONFIG ───────────────────────────────────────────────────────────
+const MASTER_KEY = "$2a$10$DbqN6HPJ95GLG6cWTknqJ.FwswzLvlG4c49i3JrwHx/201weEmSl2";
+const ACCESS_KEY = "$2a$10$ppMUsejua0ELlQ4FFGEWJe30NKvvkY8cstbJ3LW1yP.jJlv.Se36O";
+const API_LIMIT  = 10000;
+let BIN_ID = localStorage.getItem("fayaz-bin-id") || null;
+
+// ── STATE ─────────────────────────────────────────────────────────────
 const DEFAULT_SKILLS = ["ADF","PySpark"];
 const EXTRA_SKILLS   = ["Databricks","ADLS","Synapse","SQL","Python","Azure","Kafka","dbt","Delta Lake","Spark"];
-
 const STATUS_MAP = {
   "Applied":     {color:"#3b82f6",bg:"#1e3a5f"},
   "HR Reached":  {color:"#f59e0b",bg:"#3d2e0a"},
@@ -375,37 +414,117 @@ const STATUS_MAP = {
   "No Response": {color:"#6b7280",bg:"#1f2937"},
 };
 
-let jobs = JSON.parse(localStorage.getItem("fayaz-jobs-v2") || "[]");
-let editId = null;
+let jobs         = JSON.parse(localStorage.getItem("fayaz-jobs-v2")||"[]");
+let editId       = null;
 let selectedSkills = [...DEFAULT_SKILLS];
-let sortKey = "date";
-let sortDir = -1; // -1 = desc
+let sortKey      = "dateApplied";
+let sortDir      = -1;
+let apiCallCount = parseInt(localStorage.getItem("fayaz-api-calls")||"0");
 
-// ── STORAGE ──────────────────────────────────────────────────────────
+// ── API USAGE TRACKER ─────────────────────────────────────────────────
+function bumpApiCount(){
+  apiCallCount++;
+  localStorage.setItem("fayaz-api-calls", apiCallCount);
+  renderApiBar();
+}
+function renderApiBar(){
+  const pct = Math.min((apiCallCount/API_LIMIT)*100,100);
+  const fill = document.getElementById("apiProgressFill");
+  const count = document.getElementById("apiCount");
+  fill.style.width = pct+"%";
+  fill.style.background = pct>80?"#ef4444":pct>50?"#f59e0b":"#10b981";
+  count.textContent = `${apiCallCount.toLocaleString()} / ${API_LIMIT.toLocaleString()} calls`;
+}
+
+// ── SYNC STATUS ───────────────────────────────────────────────────────
+function setSyncStatus(state, msg){
+  const dot = document.getElementById("syncDot");
+  const txt = document.getElementById("syncMsg");
+  dot.className = "sync-dot " + state;
+  txt.textContent = msg;
+}
+
+// ── JSONBIN API ───────────────────────────────────────────────────────
+async function cloudLoad(){
+  setSyncStatus("syncing","Syncing from cloud…");
+  try{
+    if(!BIN_ID){
+      // create new bin
+      const res = await fetch("https://api.jsonbin.io/v3/b",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-Master-Key": MASTER_KEY,
+          "X-Bin-Name":"fayaz-job-tracker",
+          "X-Collection-Name":"job-tracker"
+        },
+        body: JSON.stringify({jobs:[]})
+      });
+      bumpApiCount();
+      const data = await res.json();
+      BIN_ID = data.metadata.id;
+      localStorage.setItem("fayaz-bin-id", BIN_ID);
+      setSyncStatus("ok","Cloud bin created ✓");
+      return;
+    }
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{
+      headers:{"X-Master-Key": MASTER_KEY, "X-Access-Key": ACCESS_KEY}
+    });
+    bumpApiCount();
+    const data = await res.json();
+    const cloudJobs = data.record?.jobs || [];
+    // merge: cloud wins if newer
+    if(cloudJobs.length >= jobs.length){
+      jobs = cloudJobs;
+      localStorage.setItem("fayaz-jobs-v2", JSON.stringify(jobs));
+    }
+    setSyncStatus("ok","Synced · "+new Date().toLocaleTimeString());
+    syncFilterPlatform();
+    render();
+  } catch(e){
+    setSyncStatus("err","Offline — using local data");
+  }
+}
+
+async function cloudSave(){
+  setSyncStatus("syncing","Saving to cloud…");
+  try{
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
+      method:"PUT",
+      headers:{
+        "Content-Type":"application/json",
+        "X-Master-Key": MASTER_KEY
+      },
+      body: JSON.stringify({jobs})
+    });
+    bumpApiCount();
+    setSyncStatus("ok","Saved to cloud · "+new Date().toLocaleTimeString());
+  } catch(e){
+    setSyncStatus("err","Cloud save failed — data kept locally");
+  }
+}
+
 function save(){
   localStorage.setItem("fayaz-jobs-v2", JSON.stringify(jobs));
-  const d = document.getElementById("saveDot");
-  d.classList.add("show");
-  setTimeout(()=>d.classList.remove("show"),1400);
+  if(BIN_ID) cloudSave();
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────
 function openModal(id){
-  editId = id || null;
+  editId = id||null;
   clearForm();
   if(id){
-    const j = jobs.find(j=>j.id===id);
-    if(!j) return;
-    document.getElementById("f-company").value  = j.company  || "";
-    document.getElementById("f-role").value     = j.role     || "";
-    document.getElementById("f-link").value     = j.link     || "";
-    document.getElementById("f-date-applied").value   = j.dateApplied   || j.date || "";
-    document.getElementById("f-date-interview").value = j.dateInterview  || "";
-    document.getElementById("f-date-joining").value   = j.dateJoining    || "";
-    document.getElementById("f-salary").value   = j.salary   || "";
-    document.getElementById("f-timezone").value = j.timezone || "";
-    document.getElementById("f-status").value   = j.status   || "Applied";
-    document.getElementById("f-notes").value    = j.notes    || "";
+    const j = jobs.find(j=>j.id===id); if(!j) return;
+    document.getElementById("f-company").value       = j.company||"";
+    document.getElementById("f-role").value          = j.role||"";
+    document.getElementById("f-link").value          = j.link||"";
+    document.getElementById("f-date-applied").value  = j.dateApplied||j.date||"";
+    document.getElementById("f-date-interview").value= j.dateInterview||"";
+    document.getElementById("f-date-joining").value  = j.dateJoining||"";
+    document.getElementById("f-salary").value        = j.salary||"";
+    document.getElementById("f-timezone").value      = j.timezone||"";
+    document.getElementById("f-status").value        = j.status||"Applied";
+    document.getElementById("f-notes").value         = j.notes||"";
     setSelectVal("f-platform", j.platform||"");
     selectedSkills = [...(j.skills||[])];
     (j.contacts||[]).forEach(c=>addContactRow(c));
@@ -417,198 +536,159 @@ function openModal(id){
   document.getElementById("overlay").classList.add("open");
   document.getElementById("f-company").focus();
 }
-function closeModal(){
-  document.getElementById("overlay").classList.remove("open");
-}
-function overlayClick(e){
-  if(e.target===document.getElementById("overlay")) closeModal();
-}
+function closeModal(){ document.getElementById("overlay").classList.remove("open"); }
+function overlayClick(e){ if(e.target===document.getElementById("overlay")) closeModal(); }
 
 // ── FORM HELPERS ──────────────────────────────────────────────────────
 function clearForm(){
   ["f-company","f-role","f-link","f-salary","f-timezone","f-notes","f-platform-custom","skillCustomInput"]
-    .forEach(id=>{const el=document.getElementById(id); if(el) el.value="";});
-  ["f-date-applied","f-date-interview","f-date-joining"].forEach(id=>{document.getElementById(id).value="";});
-  document.getElementById("f-platform").value = "";
-  document.getElementById("f-status").value = "Applied";
-  document.getElementById("contactsSection").innerHTML = "";
-  selectedSkills = [...DEFAULT_SKILLS];
+    .forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["f-date-applied","f-date-interview","f-date-joining"]
+    .forEach(id=>document.getElementById(id).value="");
+  document.getElementById("f-platform").value="";
+  document.getElementById("f-status").value="Applied";
+  document.getElementById("contactsSection").innerHTML="";
+  selectedSkills=[...DEFAULT_SKILLS];
 }
-
 function setToday(fieldId){
-  const today = new Date().toISOString().split("T")[0];
-  document.getElementById(fieldId).value = today;
+  document.getElementById(fieldId).value=new Date().toISOString().split("T")[0];
 }
-
-function setSelectVal(id, val){
-  const sel = document.getElementById(id);
-  // check if option exists
+function setSelectVal(id,val){
+  const sel=document.getElementById(id);
   for(let i=0;i<sel.options.length;i++){
-    if(sel.options[i].value===val||sel.options[i].text===val){
-      sel.value = val; return;
-    }
+    if(sel.options[i].value===val||sel.options[i].text===val){sel.value=val;return;}
   }
-  // add it
-  if(val){
-    const opt = document.createElement("option");
-    opt.value = val; opt.textContent = val;
-    sel.appendChild(opt); sel.value = val;
-  }
+  if(val){const o=document.createElement("option");o.value=val;o.textContent=val;sel.appendChild(o);sel.value=val;}
 }
-
-function addCustomOption(selectId, inputId){
-  const val = document.getElementById(inputId).value.trim();
-  if(!val) return;
-  const sel = document.getElementById(selectId);
-  // check duplicates
-  for(let i=0;i<sel.options.length;i++) if(sel.options[i].text===val) {sel.value=val;return;}
-  const opt = document.createElement("option");
-  opt.value = val; opt.textContent = val;
-  sel.appendChild(opt); sel.value = val;
-  document.getElementById(inputId).value = "";
-  // persist custom options
-  let customs = JSON.parse(localStorage.getItem("fayaz-custom-platforms")||"[]");
-  if(!customs.includes(val)) customs.push(val);
-  localStorage.setItem("fayaz-custom-platforms", JSON.stringify(customs));
+function addCustomOption(selectId,inputId){
+  const val=document.getElementById(inputId).value.trim(); if(!val)return;
+  setSelectVal(selectId,val);
+  document.getElementById(inputId).value="";
+  let c=JSON.parse(localStorage.getItem("fayaz-custom-platforms")||"[]");
+  if(!c.includes(val))c.push(val);
+  localStorage.setItem("fayaz-custom-platforms",JSON.stringify(c));
   syncFilterPlatform();
 }
 
 // ── SKILLS ────────────────────────────────────────────────────────────
 function buildSkillTags(){
-  const allSkills = [...DEFAULT_SKILLS, ...EXTRA_SKILLS,
-    ...selectedSkills.filter(s=>![...DEFAULT_SKILLS,...EXTRA_SKILLS].includes(s))];
-  const unique = [...new Set(allSkills)];
-  document.getElementById("skillTagsForm").innerHTML = unique.map(s=>
+  const all=[...new Set([...DEFAULT_SKILLS,...EXTRA_SKILLS,...selectedSkills])];
+  document.getElementById("skillTagsForm").innerHTML=all.map(s=>
     `<button type="button" class="skill-tag${selectedSkills.includes(s)?" active":""}" onclick="toggleSkill('${s}')">${s}</button>`
   ).join("");
 }
 function toggleSkill(s){
-  if(selectedSkills.includes(s)) selectedSkills=selectedSkills.filter(x=>x!==s);
-  else selectedSkills.push(s);
+  selectedSkills=selectedSkills.includes(s)?selectedSkills.filter(x=>x!==s):[...selectedSkills,s];
   buildSkillTags();
 }
 function addCustomSkill(){
-  const val = document.getElementById("skillCustomInput").value.trim();
-  if(!val) return;
-  if(!selectedSkills.includes(val)) selectedSkills.push(val);
+  const val=document.getElementById("skillCustomInput").value.trim(); if(!val)return;
+  if(!selectedSkills.includes(val))selectedSkills.push(val);
   document.getElementById("skillCustomInput").value="";
   buildSkillTags();
 }
 
 // ── CONTACTS ──────────────────────────────────────────────────────────
 function addContactRow(c){
-  const sec = document.getElementById("contactsSection");
-  const id = "cr-"+Date.now()+Math.random();
-  const div = document.createElement("div");
-  div.className="contact-row"; div.id=id;
+  const sec=document.getElementById("contactsSection");
+  const id="cr-"+Date.now()+Math.random().toString(36).slice(2);
+  const div=document.createElement("div");
+  div.className="contact-row";div.id=id;
   div.innerHTML=`
     <input placeholder="Name" class="cr-name" value="${(c&&c.name)||""}"/>
     <span class="sep">|</span>
     <input placeholder="Email or Phone" class="cr-contact" value="${(c&&c.contact)||""}"/>
-    <button class="btn-rm-contact" onclick="document.getElementById('${id}').remove()" title="Remove">✕</button>
-  `;
+    <button class="btn-rm-contact" onclick="document.getElementById('${id}').remove()" title="Remove">✕</button>`;
   sec.appendChild(div);
 }
 function getContacts(){
-  return [...document.querySelectorAll(".contact-row")].map(row=>({
-    name: row.querySelector(".cr-name").value.trim(),
-    contact: row.querySelector(".cr-contact").value.trim()
+  return [...document.querySelectorAll(".contact-row")].map(r=>({
+    name:r.querySelector(".cr-name").value.trim(),
+    contact:r.querySelector(".cr-contact").value.trim()
   })).filter(c=>c.name||c.contact);
 }
 
-// ── SAVE JOB ─────────────────────────────────────────────────────────
+// ── SAVE / DELETE ─────────────────────────────────────────────────────
 function saveJob(){
-  const company = document.getElementById("f-company").value.trim();
-  const role    = document.getElementById("f-role").value.trim();
+  const company=document.getElementById("f-company").value.trim();
+  const role=document.getElementById("f-role").value.trim();
   if(!company||!role){alert("Company and Role are required!");return;}
-  const job = {
-    id: editId||Date.now(),
-    company, role,
+  const job={
+    id:editId||Date.now(), company, role,
     link:     document.getElementById("f-link").value.trim(),
     dateApplied:   document.getElementById("f-date-applied").value,
     dateInterview: document.getElementById("f-date-interview").value,
     dateJoining:   document.getElementById("f-date-joining").value,
-    date:          document.getElementById("f-date-applied").value, // keep for sort compat
+    date:          document.getElementById("f-date-applied").value,
     salary:   document.getElementById("f-salary").value.trim(),
     timezone: document.getElementById("f-timezone").value.trim(),
     status:   document.getElementById("f-status").value,
     platform: document.getElementById("f-platform").value,
-    notes:    document.getElementById("f-notes").value.trim(),
+    notes:    document.getElementById("f-notes").value,
     skills:   [...selectedSkills],
     contacts: getContacts(),
   };
-  if(editId) jobs=jobs.map(j=>j.id===editId?job:j);
+  if(editId)jobs=jobs.map(j=>j.id===editId?job:j);
   else jobs.unshift(job);
-  save();
-  closeModal();
-  syncFilterPlatform();
-  render();
+  save(); closeModal(); syncFilterPlatform(); render();
 }
-
 function deleteJob(id){
-  if(!confirm("Remove this application?")) return;
+  if(!confirm("Remove this application?"))return;
   jobs=jobs.filter(j=>j.id!==id);
   save(); render();
 }
 
 // ── SORT ──────────────────────────────────────────────────────────────
 function sortBy(key){
-  if(sortKey===key) sortDir*=-1;
-  else{sortKey=key;sortDir=-1;}
+  sortKey===key?sortDir*=-1:(sortKey=key,sortDir=-1);
   render();
 }
 
 // ── PLATFORM FILTER SYNC ──────────────────────────────────────────────
 function syncFilterPlatform(){
-  const sel = document.getElementById("fPlatform");
-  const existing = [...sel.options].map(o=>o.value);
-  const platforms = [...new Set(jobs.map(j=>j.platform).filter(Boolean))];
-  platforms.forEach(p=>{
-    if(!existing.includes(p)){
-      const opt=document.createElement("option");opt.value=p;opt.textContent=p;sel.appendChild(opt);
-    }
+  const sel=document.getElementById("fPlatform");
+  const existing=[...sel.options].map(o=>o.value);
+  [...new Set(jobs.map(j=>j.platform).filter(Boolean))].forEach(p=>{
+    if(!existing.includes(p)){const o=document.createElement("option");o.value=p;o.textContent=p;sel.appendChild(o);}
   });
 }
 
+// ── PDF DOWNLOAD ──────────────────────────────────────────────────────
+function downloadPDF(){ window.print(); }
+
 // ── RENDER ────────────────────────────────────────────────────────────
 function renderStats(){
-  const total   = jobs.length;
-  const inter   = jobs.filter(j=>j.status==="Interview").length;
-  const offers  = jobs.filter(j=>j.status==="Offer").length;
-  const rate    = total?Math.round(jobs.filter(j=>!["No Response","Applied"].includes(j.status)).length/total*100):0;
-  const cards = [
-    {lbl:"Total Applied",  val:total,    color:"#3b82f6", border:"#1e3a5f"},
-    {lbl:"Interviews",     val:inter,    color:"#a855f7", border:"#2d1a4a"},
-    {lbl:"Offers",         val:offers,   color:"#10b981", border:"#0a3325"},
-    {lbl:"Response Rate",  val:rate+"%", color:"#f59e0b", border:"#3d2e0a"},
-  ];
-  document.getElementById("statsRow").innerHTML=cards.map(c=>
-    `<div class="stat" style="border-color:${c.border};box-shadow:0 0 18px ${c.color}12">
-      <div class="stat-val" style="color:${c.color}">${c.val}</div>
-      <div class="stat-lbl">${c.lbl}</div>
-    </div>`
-  ).join("");
+  const total=jobs.length;
+  const inter=jobs.filter(j=>j.status==="Interview").length;
+  const offers=jobs.filter(j=>j.status==="Offer").length;
+  const rate=total?Math.round(jobs.filter(j=>!["No Response","Applied"].includes(j.status)).length/total*100):0;
+  document.getElementById("statsRow").innerHTML=[
+    {lbl:"Total Applied", val:total,    color:"#3b82f6",border:"#1e3a5f"},
+    {lbl:"Interviews",    val:inter,    color:"#a855f7",border:"#2d1a4a"},
+    {lbl:"Offers",        val:offers,   color:"#10b981",border:"#0a3325"},
+    {lbl:"Response Rate", val:rate+"%", color:"#f59e0b",border:"#3d2e0a"},
+  ].map(c=>`<div class="stat" style="border-color:${c.border};box-shadow:0 0 18px ${c.color}12">
+    <div class="stat-val" style="color:${c.color}">${c.val}</div>
+    <div class="stat-lbl">${c.lbl}</div></div>`).join("");
 }
 
 function render(){
   renderStats();
-  const q        = document.getElementById("searchInput").value.toLowerCase();
-  const fStatus  = document.getElementById("fStatus").value;
-  const fPlatform= document.getElementById("fPlatform").value;
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  const fS=document.getElementById("fStatus").value;
+  const fP=document.getElementById("fPlatform").value;
 
-  let filtered = jobs.filter(j=>{
-    const ms = !fStatus  || j.status===fStatus;
-    const mp = !fPlatform|| j.platform===fPlatform;
-    const mq = !q || j.company.toLowerCase().includes(q)
-                  || j.role.toLowerCase().includes(q)
-                  || (j.contacts||[]).some(c=>c.name.toLowerCase().includes(q)||c.contact.toLowerCase().includes(q));
-    return ms&&mp&&mq;
+  let filtered=jobs.filter(j=>{
+    return (!fS||j.status===fS)
+        && (!fP||j.platform===fP)
+        && (!q||j.company.toLowerCase().includes(q)
+              ||j.role.toLowerCase().includes(q)
+              ||(j.contacts||[]).some(c=>c.name.toLowerCase().includes(q)||c.contact.toLowerCase().includes(q)));
   });
 
-  // sort
   filtered.sort((a,b)=>{
-    let av=a[sortKey]||"", bv=b[sortKey]||"";
-    if(typeof av==="string") av=av.toLowerCase(),bv=bv.toLowerCase();
+    let av=a[sortKey]||"",bv=b[sortKey]||"";
+    if(typeof av==="string"){av=av.toLowerCase();bv=bv.toLowerCase();}
     return av<bv?-sortDir:av>bv?sortDir:0;
   });
 
@@ -616,9 +696,9 @@ function render(){
 
   const tbody=document.getElementById("jobTableBody");
   const empty=document.getElementById("emptyState");
-  if(filtered.length===0){
-    tbody.innerHTML="";
-    empty.style.display="block";
+
+  if(!filtered.length){
+    tbody.innerHTML="";empty.style.display="block";
     document.getElementById("emptyTitle").textContent=jobs.length===0?"Start tracking your applications":"No matches found";
     document.getElementById("emptySub").textContent=jobs.length===0?"Click '+ Add Application' to log your first one":"Try adjusting your filters";
     return;
@@ -627,56 +707,64 @@ function render(){
 
   tbody.innerHTML=filtered.map(j=>{
     const ss=STATUS_MAP[j.status]||STATUS_MAP["Applied"];
-    const skills=(j.skills||[]).map(s=>`<span class="skill-chip">${s}</span>`).join("");
+
+    // Dates with labels
+    const datesHtml=[
+      j.dateApplied||j.date ? `<div class="date-line"><span class="date-label dl-applied">📨 Applied</span>${j.dateApplied||j.date}</div>` : "",
+      j.dateInterview        ? `<div class="date-line"><span class="date-label dl-interview">🎙 Interview</span>${j.dateInterview}</div>` : "",
+      j.dateJoining          ? `<div class="date-line"><span class="date-label dl-joining">🏢 Joining</span>${j.dateJoining}</div>` : "",
+    ].filter(Boolean).join("")||"<span style='color:var(--border2)'>—</span>";
+
+    const skills=(j.skills||[]).map(s=>`<span class="skill-chip">${s}</span>`).join("")
+      ||'<span style="color:var(--border2);font-size:10px">—</span>';
+
     const contacts=(j.contacts||[]).map(c=>
-      `<div class="contact-mini-item">👤 ${c.name}${c.contact?" · "+c.contact:""}</div>`
-    ).join("") || '<span style="color:var(--border2);font-size:11px">—</span>';
-    const link=j.link?`<a class="td-link" href="${j.link}" target="_blank" rel="noreferrer">🔗 JD</a>`:"";
+      `<div class="contact-mini-item">👤 ${c.name}${c.contact?" · <span style='color:var(--dim)'>"+c.contact+"</span>":""}</div>`
+    ).join("")||'<span style="color:var(--border2);font-size:10px">—</span>';
+
+    const notesHtml=j.notes
+      ?`<div class="td-notes">${j.notes.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>`
+      :"";
+
     return `<tr>
       <td>
         <div class="td-company">${j.company}</div>
         <div class="td-role">${j.role}</div>
-        ${link}
+        ${j.link?`<a class="td-link" href="${j.link}" target="_blank" rel="noreferrer">🔗 View JD</a>`:""}
       </td>
-      <td style="font-size:11px;white-space:nowrap;line-height:1.8;">
-        ${j.dateApplied||j.date  ? `<div><span style="color:var(--dim)">📨</span> ${j.dateApplied||j.date}</div>`:""}
-        ${j.dateInterview         ? `<div><span style="color:var(--dim)">🎙</span> ${j.dateInterview}</div>`:""}
-        ${j.dateJoining           ? `<div><span style="color:var(--green)">🏢</span> ${j.dateJoining}</div>`:""}
-        ${!j.dateApplied&&!j.date&&!j.dateInterview&&!j.dateJoining?"<span style='color:var(--border2)'>—</span>":""}
-      </td>
+      <td><div class="date-block">${datesHtml}</div></td>
       <td style="color:var(--muted);font-size:12px">${j.platform||"—"}</td>
-      <td><div class="td-skills">${skills||'<span style="color:var(--border2);font-size:11px">—</span>'}</div></td>
+      <td><div class="td-skills">${skills}</div></td>
       <td><div class="contacts-mini">${contacts}</div></td>
       <td style="color:var(--green);font-weight:700;font-size:12px;white-space:nowrap">${j.salary||"—"}</td>
       <td>
-        <span class="status-badge" style="background:${ss.bg};color:${ss.color};border-color:${ss.color}40">
-          ${j.status}
-        </span>
+        <span class="status-badge" style="background:${ss.bg};color:${ss.color};border-color:${ss.color}40">${j.status}</span>
         ${j.timezone?`<div style="color:var(--dim);font-size:10px;margin-top:3px">🌐 ${j.timezone}</div>`:""}
       </td>
       <td>
         <div class="actions-td">
-          <button class="btn-icon" onclick="openModal(${j.id})" title="Edit">✏️</button>
-          <button class="btn-icon del" onclick="deleteJob(${j.id})" title="Delete">🗑</button>
+          <button class="btn-icon" onclick="openModal(${j.id})">✏️ Edit</button>
+          <button class="btn-icon del" onclick="deleteJob(${j.id})">🗑</button>
         </div>
-        ${j.notes?`<div style="color:var(--dim);font-size:10px;margin-top:5px;max-width:160px;line-height:1.4">📝 ${j.notes}</div>`:""}
+        ${notesHtml}
       </td>
     </tr>`;
   }).join("");
 }
 
-// restore custom platforms
+// ── INIT ──────────────────────────────────────────────────────────────
 (function(){
-  const customs=JSON.parse(localStorage.getItem("fayaz-custom-platforms")||"[]");
+  const c=JSON.parse(localStorage.getItem("fayaz-custom-platforms")||"[]");
   const sel=document.getElementById("f-platform");
-  customs.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});
+  c.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});
 })();
 
+renderApiBar();
 syncFilterPlatform();
 render();
+cloudLoad();
 
-// ESC to close
-document.addEventListener("keydown",e=>{if(e.key==="Escape") closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
 </script>
 </body>
 </html>
