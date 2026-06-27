@@ -400,7 +400,9 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:0;position:absolut
 const MASTER_KEY = "$2a$10$DbqN6HPJ95GLG6cWTknqJ.FwswzLvlG4c49i3JrwHx/201weEmSl2";
 const ACCESS_KEY = "$2a$10$ppMUsejua0ELlQ4FFGEWJe30NKvvkY8cstbJ3LW1yP.jJlv.Se36O";
 const API_LIMIT  = 10000;
-let BIN_ID = localStorage.getItem("fayaz-bin-id") || null;
+const HARDCODED_BIN_ID = "6a404647da38895dfe08ff27";
+let BIN_ID = HARDCODED_BIN_ID;
+localStorage.setItem("fayaz-bin-id", BIN_ID);
 
 // ── STATE ─────────────────────────────────────────────────────────────
 const DEFAULT_SKILLS = ["ADF","PySpark"];
@@ -448,36 +450,15 @@ function setSyncStatus(state, msg){
 async function cloudLoad(){
   setSyncStatus("syncing","Syncing from cloud…");
   try{
-    if(!BIN_ID){
-      // create new bin
-      const res = await fetch("https://api.jsonbin.io/v3/b",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "X-Master-Key": MASTER_KEY,
-          "X-Bin-Name":"fayaz-job-tracker",
-          "X-Collection-Name":"job-tracker"
-        },
-        body: JSON.stringify({jobs:[]})
-      });
-      bumpApiCount();
-      const data = await res.json();
-      BIN_ID = data.metadata.id;
-      localStorage.setItem("fayaz-bin-id", BIN_ID);
-      setSyncStatus("ok","Cloud bin created ✓");
-      return;
-    }
     const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{
       headers:{"X-Master-Key": MASTER_KEY, "X-Access-Key": ACCESS_KEY}
     });
     bumpApiCount();
     const data = await res.json();
     const cloudJobs = data.record?.jobs || [];
-    // merge: cloud wins if newer
-    if(cloudJobs.length >= jobs.length){
-      jobs = cloudJobs;
-      localStorage.setItem("fayaz-jobs-v2", JSON.stringify(jobs));
-    }
+    // always trust cloud as source of truth
+    jobs = cloudJobs;
+    localStorage.setItem("fayaz-jobs-v2", JSON.stringify(jobs));
     setSyncStatus("ok","Synced · "+new Date().toLocaleTimeString());
     syncFilterPlatform();
     render();
